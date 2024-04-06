@@ -9,24 +9,40 @@ import java.util.Arrays;
 }
 
 statement returns [Expr expr]
-	: 'print' '(' e=expression ')' ';'? { $expr = new Print($e.result); }
-	| e=expression ';'? { $expr = $e.result; }
-	| a=assign ';'? { $expr = $a.result; }
-	| f=forLoop { $expr = $f.expr; }
-	;
+    : 'print' '(' e=expression ')' ';'? { $expr = new Print($e.result); }
+    | e=expression ';'? { $expr = $e.result; }
+    | a=assign ';'? { $expr = $a.result; }
+    | f=forLoop { $expr = $f.expr; }
+    | fd=functionDef { $expr = $fd.expr; }
+    ;
 	
 program returns [Expr expr]
-	@init {
-		List<Expr> exprs = new ArrayList<>();
-	}
-	: (s=statement { exprs.add($s.expr); })* { $expr = new Program(exprs); }
-	;
+		@init {
+				List<Expr> exprs = new ArrayList<>();
+		}
+		: (fd=functionDef { exprs.add($fd.expr); })*
+			(s=statement { exprs.add($s.expr); })* { $expr = new Program(exprs); }
+		;
 
 forLoop returns [Expr expr]
-	: 'for' '(' ID 'in' start=expression '..' end=expression ')' '{' p=program '}' {
-		$expr = new ForLoop($ID.text, ((ForLoopContext)_localctx).start.result, ((ForLoopContext)_localctx).end.result, ((Program)((ForLoopContext)_localctx).p.expr).getExprs());
+    : 'for' '(' ID 'in' start=expression '..' end=expression ')' '{' p=program '}' {
+        $expr = new ForLoop($ID.text, ((ForLoopContext)_localctx).start.result, ((ForLoopContext)_localctx).end.result, ((Program)((ForLoopContext)_localctx).p.expr).getExprs());
+    }
+    ;
+
+functionDef returns [Expr expr]
+	: 'function' ID '(' params=parameters ')' '{' p=program '}' {
+		$expr = new FunctionDef($ID.text, $params.result, ((Program)$p.expr).getExprs());
 	}
 	;
+
+parameters returns [List<String> result]
+	: p=ID { $result = new ArrayList<>(); $result.add($p.text); } (',' p=ID { $result.add($p.text); })*
+	;
+
+funCall returns [Expr result]
+    : ID '(' argList? ')' { $result = new FunCall($ID.text, $argList.result); }
+    ;
 
 expression returns [Expr result]
 	: e=expression op=('++' | '*' | '/' | '+' | '-') term { 
@@ -61,7 +77,6 @@ term returns [Expr result]
 argList returns [List<Expr> result] 
 	: e=expression { $result = new ArrayList<Expr>(); $result.add($e.result); } 
 	(',' e=expression { $result.add($e.result); })* ;
-funCall returns [Expr result] : ID '(' argList? ')' { $result = new FunCall($ID.text, $argList.result); };
 value returns [Expr result] : NUMBER { $result = new IntLiteral($NUMBER.text); } | STRING { $result = new StringLiteral($STRING.text); } | ID { $result = new Deref($ID.text); };
 
 ID : [a-zA-Z_][a-zA-Z_0-9]* ;

@@ -115,7 +115,7 @@ class FunCall(
     val args: List<Expr>
 ): Expr() {
     override fun eval(runtime: Runtime): Data {
-        val function = runtime.symbolTable[name] as? Function
+        val function = runtime.symbolTable[name] as? FunctionData
             ?: throw Exception("Function $name not found")
 
         val evaluatedArgs = args.map { it.eval(runtime) }
@@ -125,7 +125,11 @@ class FunCall(
         val subscope = runtime.subscope(bindings)
 
         // Evaluate the function body in the subscope
-        return function.body.eval(subscope)
+        var lastResult: Data = None
+        for (stmt in function.body) {
+            lastResult = stmt.eval(subscope)
+        }
+        return lastResult
     }
 }
 
