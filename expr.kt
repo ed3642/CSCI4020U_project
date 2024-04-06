@@ -55,6 +55,33 @@ class Arith(
     }
 }
 
+enum class CmpOperators {
+    LT,
+    GT,
+    EQ,
+}
+
+class Cmp(
+    val op:CmpOperators,
+    val left:Expr,
+    val right:Expr
+) : Expr() {
+    override fun eval(runtime:Runtime): Data {
+        val x:Data = left.eval(runtime)
+        val y:Data = right.eval(runtime)
+        if(x is IntData && y is IntData) {
+            val result = when(op) {
+                CmpOperators.LT -> x.v < y.v
+                CmpOperators.GT -> x.v > y.v
+                CmpOperators.EQ -> x.v == y.v
+            }
+            return BooleanData(result)
+        } else {
+            throw Exception("Cannot perform comparison")
+        }
+    }
+}
+
 class Assign(
     val name: String,
     val expr: Expr
@@ -152,6 +179,21 @@ class Print(private val expr: Expr) : Expr() {
             else -> println(value)
         }
         return value
+    }
+}
+
+class Ifelse(
+    val cond: Expr,
+    val trueExpr: Expr,
+    val falseExpr: Expr,
+) : Expr() {
+    override fun eval(runtime:Runtime): Data {
+        val result = cond.eval(runtime) as BooleanData
+        return if(result.v) {
+            trueExpr.eval(runtime)
+        } else {
+            falseExpr.eval(runtime)
+        }
     }
 }
 

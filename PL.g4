@@ -14,6 +14,7 @@ statement returns [Expr expr]
     | a=assign ';'? { $expr = $a.result; }
     | f=forLoop { $expr = $f.expr; }
     | fd=functionDef { $expr = $fd.expr; }
+    | ie=ifElse { $expr = $ie.expr; }
     ;
 	
 program returns [Expr expr]
@@ -27,6 +28,18 @@ program returns [Expr expr]
 forLoop returns [Expr expr]
     : 'for' '(' ID 'in' start=expression '..' end=expression ')' '{' p=program '}' {
         $expr = new ForLoop($ID.text, ((ForLoopContext)_localctx).start.result, ((ForLoopContext)_localctx).end.result, ((Program)((ForLoopContext)_localctx).p.expr).getExprs());
+    }
+    ;
+
+comparison returns [Expr expr]
+    : left=expression op=('<' | '>' | '==') right=expression {
+        CmpOperators operator = CmpOperators.EQ; // default value
+        switch ($op.text) {
+            case "<": operator = CmpOperators.LT; break;
+            case ">": operator = CmpOperators.GT; break;
+            case "==": operator = CmpOperators.EQ; break;
+        }
+        $expr = new Cmp(operator, $left.result, $right.result);
     }
     ;
 
@@ -44,8 +57,27 @@ funCall returns [Expr result]
     : ID '(' argList? ')' { $result = new FunCall($ID.text, $argList.result); }
     ;
 
+ifElse returns [Expr expr]
+	: 'if' '(' cond=expression ')' '{' trueExpr=statement '}' 'else' '{' falseExpr=statement '}' {
+		$expr = new Ifelse($cond.result, $trueExpr.expr, $falseExpr.expr);
+	}
+	;
+
 expression returns [Expr result]
-	: e=expression op=('++' | '*' | '/' | '+' | '-') term { 
+    : left=expression op=('<' | '>' | '==') right=arithmetic {
+        CmpOperators operator = CmpOperators.EQ; // default value
+        switch ($op.text) {
+            case "<": operator = CmpOperators.LT; break;
+            case ">": operator = CmpOperators.GT; break;
+            case "==": operator = CmpOperators.EQ; break;
+        }
+        $result = new Cmp(operator, $left.result, $right.result);
+    }
+    | arithmetic { $result = $arithmetic.result; }
+    ;
+
+arithmetic returns [Expr result]
+	: e=arithmetic op=('++' | '*' | '/' | '+' | '-') term { 
 		switch ($op.text) {
 			case "++": $result = new Concat($e.result, $term.result); break;
 			case "*": 

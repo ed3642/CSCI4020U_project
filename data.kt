@@ -52,18 +52,3 @@ class FunctionData(
 ) : Data()
 
 class Statement(val expr: Expr)
-
-class Ifelse(
-    val cond: Expr,
-    val trueExpr: Expr,
-    val falseExpr: Expr,
-) : Expr() {
-    override fun eval(runtime:Runtime): Data {
-        val result = cond.eval(runtime) as BooleanData
-        return if(result.v) {
-            trueExpr.eval(runtime)
-        } else {
-            falseExpr.eval(runtime)
-        }
-    }
-}
