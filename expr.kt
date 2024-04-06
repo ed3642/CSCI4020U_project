@@ -33,24 +33,24 @@ enum class Operator {
 }
 
 class Arith(
-    val op:Operator,
-    val left:Expr,
-    val right:Expr,
-    ) : Expr() {
-        override fun eval(runtime:Runtime):Data {
+    val op: Operator,
+    val left: Expr,
+    val right: Expr,
+) : Expr() {
+    override fun eval(runtime: Runtime): Data {
         val x = left.eval(runtime)
         val y = right.eval(runtime)
-        if(x is IntData && y is IntData) {
-            return IntData(
-                when(op) {
+        return when {
+            x is IntData && y is IntData -> IntData(
+                when (op) {
                     Operator.ADD -> x.v + y.v
                     Operator.SUB -> x.v - y.v
                     Operator.MUL -> x.v * y.v
                     Operator.DIV -> x.v / y.v
                 }
             )
-        } else {
-            throw Exception("only support int")
+            op == Operator.MUL && x is StringData && y is IntData -> StringData(x.v.repeat(y.v))
+            else -> throw Exception("Unsupported operation")
         }
     }
 }
@@ -63,6 +63,17 @@ class Assign(
         val v:Data = expr.eval(runtime)
         runtime.symbolTable[name] = v
         return None
+    }
+}
+
+class Repeat(
+    private val expr: Expr,
+    private val times: Expr
+) : Expr() {
+    override fun eval(runtime: Runtime): Data {
+        val str = expr.eval(runtime) as? StringData ?: throw Exception("Operand is not a string")
+        val count = times.eval(runtime) as? IntData ?: throw Exception("Repeat count is not an integer")
+        return StringData(str.v.repeat(count.v))
     }
 }
 

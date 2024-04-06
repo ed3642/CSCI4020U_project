@@ -8,9 +8,9 @@ import backend.*;
 }
 
 statement returns [Expr expr]
-	: 'print' '(' e=expression ')' ';' { $expr = new Print($e.result); }
-	| e=expression ';' { $expr = $e.result; }
-	| a=assign ';' { $expr = $a.result; }
+	: 'print' '(' e=expression ')' ';'? { $expr = new Print($e.result); }
+	| e=expression ';'? { $expr = $e.result; }
+	| a=assign ';'? { $expr = $a.result; }
 	;
 	
 program returns [Expr expr]
@@ -19,12 +19,18 @@ program returns [Expr expr]
 	}
 	: (s=statement { exprs.add($s.expr); })* EOF { $expr = new Program(exprs); }
 	;
-	
+
 expression returns [Expr result]
 	: e=expression op=('++' | '*' | '/' | '+' | '-') term { 
 		switch ($op.text) {
 			case "++": $result = new Concat($e.result, $term.result); break;
-			case "*": $result = new Arith(Operator.MUL, $e.result, $term.result); break;
+			case "*": 
+				if ($e.result instanceof StringLiteral || $term.result instanceof StringLiteral) {
+					$result = new Repeat($e.result, $term.result);
+				} else {
+					$result = new Arith(Operator.MUL, $e.result, $term.result);
+				}
+				break;
 			case "/": $result = new Arith(Operator.DIV, $e.result, $term.result); break;
 			case "+": $result = new Arith(Operator.ADD, $e.result, $term.result); break;
 			case "-": $result = new Arith(Operator.SUB, $e.result, $term.result); break;

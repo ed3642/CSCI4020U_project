@@ -17,7 +17,7 @@ print(y);
 
 program 2 expected outout:
 """
-Dogs goes woof woof
+Dogs goes woof woof 
 """
 
 program3:
