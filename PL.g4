@@ -8,28 +8,40 @@ import backend.*;
 }
 
 statement returns [Expr expr]
-    : 'print' '(' e=expression ')' ';' { $expr = new Print($e.result); }
-    | e=expression ';' { $expr = $e.result; }
-    ;
-
+	: 'print' '(' e=expression ')' ';' { $expr = new Print($e.result); }
+	| e=expression ';' { $expr = $e.result; }
+	| a=assign ';' { $expr = $a.result; }
+	;
+	
 program returns [Expr expr]
-    : e=statement EOF { $expr = $e.expr; }
-    ;
-
+	@init {
+		List<Expr> exprs = new ArrayList<>();
+	}
+	: (s=statement { exprs.add($s.expr); })* EOF { $expr = new Program(exprs); }
+	;
+	
 expression returns [Expr result]
-	: e=expression '++' term { $result = new Concat($e.result, $term.result); } // Add this line
-	| e=expression '*' term { $result = new Arith(Operator.MUL, $e.result, $term.result); }
-	| e=expression '/' term { $result = new Arith(Operator.DIV, $e.result, $term.result); }
-	| e=expression '+' term { $result = new Arith(Operator.ADD, $e.result, $term.result); }
-	| e=expression '-' term { $result = new Arith(Operator.SUB, $e.result, $term.result); }
-	| ID '=' expression { $result = new Assign($ID.text, $expression.result); }
+	: e=expression op=('++' | '*' | '/' | '+' | '-') term { 
+		switch ($op.text) {
+			case "++": $result = new Concat($e.result, $term.result); break;
+			case "*": $result = new Arith(Operator.MUL, $e.result, $term.result); break;
+			case "/": $result = new Arith(Operator.DIV, $e.result, $term.result); break;
+			case "+": $result = new Arith(Operator.ADD, $e.result, $term.result); break;
+			case "-": $result = new Arith(Operator.SUB, $e.result, $term.result); break;
+		}
+	}
 	| term { $result = $term.result; }
+	;
+
+assign returns [Expr result]
+	: ID '=' expression { $result = new Assign($ID.text, $expression.result); }
 	;
 
 term returns [Expr result]
 	: '(' e=expression ')' { $result = $e.result; }
 	| value { $result = $value.result; }
 	| funCall { $result = $funCall.result; }
+	| assign { $result = $assign.result; }
 	;
 
 argList returns [List<Expr> result] 

@@ -1,7 +1,19 @@
 package backend
 
 abstract class Expr {
-    abstract fun eval(runtime:Runtime):Data
+    abstract fun eval(runtime: Runtime): Data
+
+    fun mapStatementsToExprs(statements: List<Expr>): List<Expr> {
+        return statements.map { it }
+    }
+
+    fun evalAll(statements: List<Expr>, runtime: Runtime): Data {
+        var lastResult: Data = None
+        for (stmt in statements) {
+            lastResult = stmt.eval(runtime)
+        }
+        return lastResult
+    }
 }
 
 class NoneExpr(): Expr() {
@@ -67,11 +79,6 @@ class Deref(
     }
 }
 
-class StringLiteral(val lexeme:String):Expr() {
-    override fun eval(runtime:Runtime):Data
-    = StringData(lexeme.trim('"'))
-}
-
 class FunCall(
     val name: String,
     val args: List<Expr>
@@ -111,4 +118,9 @@ class Print(private val expr: Expr) : Expr() {
         }
         return value
     }
+}
+
+class StringLiteral(val lexeme:String):Expr() {
+    override fun eval(runtime:Runtime):Data
+    = StringData(lexeme.trim('"'))
 }
