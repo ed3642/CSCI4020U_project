@@ -2,6 +2,7 @@ grammar PL;
 
 @header {
 import backend.*;
+import java.util.Arrays;
 }
 
 @members {
@@ -11,13 +12,20 @@ statement returns [Expr expr]
 	: 'print' '(' e=expression ')' ';'? { $expr = new Print($e.result); }
 	| e=expression ';'? { $expr = $e.result; }
 	| a=assign ';'? { $expr = $a.result; }
+	| f=forLoop { $expr = $f.expr; }
 	;
 	
 program returns [Expr expr]
 	@init {
 		List<Expr> exprs = new ArrayList<>();
 	}
-	: (s=statement { exprs.add($s.expr); })* EOF { $expr = new Program(exprs); }
+	: (s=statement { exprs.add($s.expr); })* { $expr = new Program(exprs); }
+	;
+
+forLoop returns [Expr expr]
+	: 'for' '(' ID 'in' start=expression '..' end=expression ')' '{' p=program '}' {
+		$expr = new ForLoop($ID.text, ((ForLoopContext)_localctx).start.result, ((ForLoopContext)_localctx).end.result, ((Program)((ForLoopContext)_localctx).p.expr).getExprs());
+	}
 	;
 
 expression returns [Expr result]

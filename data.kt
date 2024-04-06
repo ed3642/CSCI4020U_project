@@ -7,11 +7,11 @@ object None:Data() {
 }
 
 class StringData(val v:String): Data() {
-    override fun toString() = "String:\"$v\""
+    override fun toString() = "\"$v\""
 }
 
 class IntData(val v:Int) : Data() {
-    override fun toString() = "Int:$v"
+    override fun toString() = "$v"
 }
 
 class Function(

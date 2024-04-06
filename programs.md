@@ -34,7 +34,7 @@ program 3 expected outout:
 """
 
 program4:
-
+"""
 function greeting(name, message) {
   x = "Hi,";
   x = x ++ " my name is " ++ name ++ ".";
@@ -42,6 +42,7 @@ function greeting(name, message) {
   print(message);
 }
 greeting("Albert", "How are you?");
+"""
 
 program 4 expected outout:
 """

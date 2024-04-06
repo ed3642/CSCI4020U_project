@@ -66,6 +66,26 @@ class Assign(
     }
 }
 
+class ForLoop(
+    private val id: String,
+    private val start: Expr,
+    private val end: Expr,
+    private val body: List<Expr>
+) : Expr() {
+    override fun eval(runtime: Runtime): Data {
+        val startValue = start.eval(runtime) as? IntData ?: throw Exception("Start value is not an integer")
+        val endValue = end.eval(runtime) as? IntData ?: throw Exception("End value is not an integer")
+
+        var lastResult: Data = None
+        for (i in startValue.v..endValue.v) {
+            runtime.symbolTable[id] = IntData(i)
+            lastResult = evalAll(body, runtime)
+        }
+
+        return lastResult
+    }
+}
+
 class Repeat(
     private val expr: Expr,
     private val times: Expr
