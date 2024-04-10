@@ -65,3 +65,36 @@ program 5 expected outout:
 """
 3628800
 """
+
+program6:
+
+"""
+list = [1, 2, 3, 4, 5];
+
+print(list.length());
+print(list.sum());
+print(list)
+"""
+
+program 6 expected output:
+"""
+5
+15
+[1, 2, 3, 4, 5]
+"""
+
+program7:
+
+"""
+a = {1, 2, 3, 4, 5};
+b = {2, 4, 6};
+
+union = a or b;
+
+print(union);
+"""
+
+program 7 expected output:
+"""
+[2, 4]
+"""

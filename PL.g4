@@ -31,6 +31,16 @@ forLoop returns [Expr expr]
     }
     ;
 
+// list functions
+
+listLength returns [Expr result]
+    : ID '.length()' { $result = new ListLength(new Deref($ID.text)); }
+    ;
+
+listSum returns [Expr result]
+    : ID '.sum()' { $result = new ListSum(new Deref($ID.text)); }
+    ;
+
 comparison returns [Expr expr]
     : left=expression op=('<' | '>' | '==') right=expression {
         CmpOperators operator = CmpOperators.EQ; // default value
@@ -100,11 +110,20 @@ assign returns [Expr result]
 	;
 
 term returns [Expr result]
-	: '(' e=expression ')' { $result = $e.result; }
-	| value { $result = $value.result; }
-	| funCall { $result = $funCall.result; }
-	| assign { $result = $assign.result; }
-	;
+    : '(' e=expression ')' { $result = $e.result; }
+    | value { $result = $value.result; }
+    | funCall { $result = $funCall.result; }
+    | assign { $result = $assign.result; }
+    | listLiteral { $result = $listLiteral.result; }
+    | listLength { $result = $listLength.result; }
+    | listSum { $result = $listSum.result; }
+    ;
+
+//	list literal
+
+listLiteral returns [Expr result]
+    : '[' elements=argList? ']' { $result = new ListLiteral($elements.result); }
+    ;
 
 argList returns [List<Expr> result] 
 	: e=expression { $result = new ArrayList<Expr>(); $result.add($e.result); } 

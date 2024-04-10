@@ -197,7 +197,32 @@ class Ifelse(
     }
 }
 
+// list stuff
+
+class ListLiteral(val elements: List<Expr>) : Expr() {
+    override fun eval(runtime: Runtime): Data {
+        val evaluatedElements = elements.map { it.eval(runtime) }
+        return ListData(evaluatedElements)
+    }
+}
+
+class ListLength(val list: Expr) : Expr() {
+    override fun eval(runtime: Runtime): Data {
+        val listData = list.eval(runtime) as? ListData ?: throw Exception("Operand is not a list")
+        return IntData(listData.v.size)
+    }
+}
+
+class ListSum(val list: Expr) : Expr() {
+    override fun eval(runtime: Runtime): Data {
+        val listData = list.eval(runtime) as? ListData ?: throw Exception("Operand is not a list")
+        val sum = listData.v.sumOf { (it as? IntData)?.v ?: throw Exception("List contains non-integer value") }
+        return IntData(sum)
+    }
+}
+
 class StringLiteral(val lexeme:String):Expr() {
     override fun eval(runtime:Runtime):Data
     = StringData(lexeme.trim('"'))
 }
+

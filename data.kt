@@ -52,3 +52,7 @@ class FunctionData(
 ) : Data()
 
 class Statement(val expr: Expr)
+
+class ListData(val v: List<Data>) : Data() {
+    override fun toString() = v.joinToString(prefix = "[", postfix = "]") { it.toString() }
+}
