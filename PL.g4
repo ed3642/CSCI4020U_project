@@ -54,24 +54,31 @@ comparison returns [Expr expr]
     ;
 
 functionDef returns [Expr expr]
-	: 'function' ID '(' params=parameters ')' '{' p=program '}' {
-		$expr = new FunctionDef($ID.text, $params.result, ((Program)$p.expr).getExprs());
-	}
-	;
-
-parameters returns [List<String> result]
-	: p=ID { $result = new ArrayList<>(); $result.add($p.text); } (',' p=ID { $result.add($p.text); })*
-	;
+    : 'function' ID '(' params=parameters ')' '{' p=program '}' {
+        $expr = new FunctionDef($ID.text, $params.result, ((Program)$p.expr).getExprs());
+    }
+    | ID '=' '(' params=parameters ')' '>>' '{' p=program '}' {
+        $expr = new FunctionDef($ID.text, $params.result, ((Program)$p.expr).getExprs());
+    }
+    ;
 
 funCall returns [Expr result]
     : ID '(' argList? ')' { $result = new FunCall($ID.text, $argList.result); }
     ;
 
+parameters returns [List<String> result]
+    : p=ID { $result = new ArrayList<>(); $result.add($p.text); } (',' p=ID { $result.add($p.text); })*
+    | { $result = new ArrayList<>(); } 
+    ;
+
 ifElse returns [Expr expr]
-	: 'if' '(' cond=expression ')' '{' trueExpr=statement '}' 'else' '{' falseExpr=statement '}' {
-		$expr = new Ifelse($cond.result, $trueExpr.expr, $falseExpr.expr);
-	}
-	;
+    : 'if' '(' cond=expression ')' '{' trueExpr=statement '}' 'else' '{' falseExpr=statement '}' {
+        $expr = new Ifelse($cond.result, $trueExpr.expr, $falseExpr.expr);
+    }
+    | 'if' '(' cond=expression ')' '{' trueStmt=statement '}' 'else' '{' falseStmt=statement '}' {
+        $expr = new Ifelse($cond.result, $trueStmt.expr, $falseStmt.expr);
+    }
+    ;
 
 expression returns [Expr result]
     : left=expression op=('<' | '>' | '==') right=arithmetic {
@@ -126,8 +133,11 @@ listLiteral returns [Expr result]
     ;
 
 argList returns [List<Expr> result] 
-	: e=expression { $result = new ArrayList<Expr>(); $result.add($e.result); } 
-	(',' e=expression { $result.add($e.result); })* ;
+    : e=expression { $result = new ArrayList<Expr>(); $result.add($e.result); } 
+    (',' e=expression { $result.add($e.result); })*
+    | e=expression { $result = new ArrayList<Expr>(); $result.add($e.result); }
+    ;
+
 value returns [Expr result] : NUMBER { $result = new IntLiteral($NUMBER.text); } | STRING { $result = new StringLiteral($STRING.text); } | ID { $result = new Deref($ID.text); };
 
 // lexer rules

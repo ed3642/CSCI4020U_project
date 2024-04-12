@@ -86,15 +86,35 @@ program 6 expected output:
 program7:
 
 """
-a = {1, 2, 3, 4, 5};
-b = {2, 4, 6};
+sum = 0 // no parenthesis needed
+/* this is a loop */
+for(i in 10..20) {
+  sum = sum + i; /* this is a comment */
+}
 
-union = a or b;
-
-print(union);
+print(sum) // printing
 """
 
 program 7 expected output:
 """
-[2, 4]
+165
+"""
+
+program8:
+
+"""
+greeting = (name, message) >> {
+  x = "Hi,";
+  x = x ++ " my name is " ++ name ++ ".";
+  print(x);
+  print(message);
+}
+
+greeting("Albert", "How are you?");
+"""
+
+program 8 expected output:
+"""
+Hi, my name is Albert.
+How are you?
 """

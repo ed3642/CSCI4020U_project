@@ -147,7 +147,6 @@ class FunCall(
 
         val evaluatedArgs = args.map { it.eval(runtime) }
 
-        // Create a new subscope with the function parameters bound to the evaluated arguments
         val bindings = function.params.zip(evaluatedArgs).toMap()
         val subscope = runtime.subscope(bindings)
 
