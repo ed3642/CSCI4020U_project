@@ -100,21 +100,38 @@ program 7 expected output:
 165
 """
 
-program8:
+program8a:
 
 """
-greeting = (name, message) >> {
-  x = "Hi,";
-  x = x ++ " my name is " ++ name ++ ".";
-  print(x);
-  print(message);
+function funca(a, b) {
+  print("normal function:");
+  ans = a + b;
+  print(ans);
 }
 
-greeting("Albert", "How are you?");
+funca(10, 5);
 """
 
-program 8 expected output:
+program 8a expected output:
 """
-Hi, my name is Albert.
-How are you?
+normal function:
+15
+"""
+
+program8b:
+
+"""
+funcb = (a, b) >> {
+  print("arrow function:");
+  ans = a + b;
+  print(ans);
+}
+
+funcb(20, 5);
+"""
+
+program 8b expected output:
+"""
+arrow function:
+25
 """
