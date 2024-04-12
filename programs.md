@@ -73,7 +73,10 @@ list = [1, 2, 3, 4, 5];
 
 print(list.length());
 print(list.sum());
-print(list)
+print(list);
+
+list2 = ["a", "b", "c"];
+print(list2);
 """
 
 program 6 expected output:
@@ -81,6 +84,7 @@ program 6 expected output:
 5
 15
 [1, 2, 3, 4, 5]
+["a", "b", "c"]
 """
 
 program7:
