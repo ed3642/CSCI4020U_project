@@ -53,6 +53,8 @@ comparison returns [Expr expr]
     }
     ;
 
+// SHOW
+
 functionDef returns [Expr expr]
     : 'function' ID '(' params=parameters ')' '{' p=program '}' {
         $expr = new FunctionDef($ID.text, $params.result, ((Program)$p.expr).getExprs());
@@ -145,5 +147,6 @@ ID : [a-zA-Z_][a-zA-Z_0-9]*;
 NUMBER : [0-9]+ ('.' [0-9]+)?;
 STRING : '"' (~["\\] | '\\' .)* '"';
 WHITESPACE : [ \t\r\n] -> skip;
+// SHOW
 COMMENT : '/*' .*? '*/' -> skip;
 LINE_COMMENT : '//' .*? '\n' -> skip;
