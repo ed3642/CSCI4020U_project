@@ -130,7 +130,10 @@ argList returns [List<Expr> result]
 	(',' e=expression { $result.add($e.result); })* ;
 value returns [Expr result] : NUMBER { $result = new IntLiteral($NUMBER.text); } | STRING { $result = new StringLiteral($STRING.text); } | ID { $result = new Deref($ID.text); };
 
-ID : [a-zA-Z_][a-zA-Z_0-9]* ;
+// lexer rules
+ID : [a-zA-Z_][a-zA-Z_0-9]*;
 NUMBER : [0-9]+ ('.' [0-9]+)?;
 STRING : '"' (~["\\] | '\\' .)* '"';
 WHITESPACE : [ \t\r\n] -> skip;
+COMMENT : '/*' .*? '*/' -> skip;
+LINE_COMMENT : '//' .*? '\n' -> skip;
